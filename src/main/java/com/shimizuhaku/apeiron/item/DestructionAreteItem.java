@@ -21,13 +21,15 @@ public abstract class DestructionAreteItem extends AreteItem {
     }
 
     /**
-     * このアレテーが対応する採掘ティア相当のブロックタグ。
-     * 企投モジュール「精密」が装着されるとより上位のタグを返すよう、
+     * このアレテーが対応する採掘ティア相当の判定。
+     * 企投モジュール「精密」が装着されるとより上位の判定を返すよう、
      * 将来サブクラスや企投処理でオーバーライドする想定。
-     * デフォルトは木ツール相当（incorrect_for_wooden_tool 以外なら破壊可能）。
+     * デフォルトは木ツール相当（石・鉄・ダイヤ要求ブロックは破壊不可）。
      */
     public boolean canBreak(BlockState state) {
-        return !state.is(BlockTags.NEEDS_STONE_TOOL);
+        return !state.is(BlockTags.NEEDS_STONE_TOOL)
+                && !state.is(BlockTags.NEEDS_IRON_TOOL)
+                && !state.is(BlockTags.NEEDS_DIAMOND_TOOL);
     }
 
     /**

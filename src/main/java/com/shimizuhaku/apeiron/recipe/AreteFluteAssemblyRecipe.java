@@ -37,24 +37,36 @@ public class AreteFluteAssemblyRecipe implements CraftingRecipe {
             ItemStack stack = container.getItem(i);
             if (stack.isEmpty()) continue;
 
+            System.out.println("[APEIRON DEBUG] slot " + i + ": " + stack.getItem()
+                    + " / class=" + stack.getItem().getClass().getName()
+                    + " / isWoodenFlute=" + (stack.getItem() instanceof WoodenFluteItem)
+                    + " / isAreteItem=" + (stack.getItem() instanceof AreteItem));
+
             if (stack.getItem() instanceof WoodenFluteItem) {
-                if (!flute.isEmpty()) return false; // 笛は1つだけ
+                if (!flute.isEmpty()) { System.out.println("[APEIRON DEBUG] fail: flute重複"); return false; }
                 flute = stack;
             } else if (stack.getItem() instanceof AreteItem areteItem) {
-                if (areteItem.getTier() != 1) return false; // 低級(Tier1)のみ受け付ける
-                if (!arete.isEmpty()) return false; // アレテーは1つだけ
+                System.out.println("[APEIRON DEBUG] areteItem tier=" + areteItem.getTier());
+                if (areteItem.getTier() != 1) { System.out.println("[APEIRON DEBUG] fail: tier != 1"); return false; }
+                if (!arete.isEmpty()) { System.out.println("[APEIRON DEBUG] fail: arete重複"); return false; }
                 arete = stack;
             } else {
                 otherCount++;
+                System.out.println("[APEIRON DEBUG] otherCount++ now=" + otherCount);
             }
         }
 
-        if (flute.isEmpty() || arete.isEmpty() || otherCount > 0) return false;
+        if (flute.isEmpty() || arete.isEmpty() || otherCount > 0) {
+            System.out.println("[APEIRON DEBUG] fail: flute.isEmpty=" + flute.isEmpty()
+                    + " arete.isEmpty=" + arete.isEmpty() + " otherCount=" + otherCount);
+            return false;
+        }
 
-        // 既にアレテーが装着済みの笛は対象外
-        return flute.getCapability(CapabilityRegistry.INSTRUMENT_DATA)
+        boolean result = flute.getCapability(CapabilityRegistry.INSTRUMENT_DATA)
                 .map(cap -> !cap.hasArete())
                 .orElse(true);
+        System.out.println("[APEIRON DEBUG] final result=" + result);
+        return result;
     }
 
     @Override
@@ -111,7 +123,7 @@ public class AreteFluteAssemblyRecipe implements CraftingRecipe {
 
     @Override
     public RecipeType<?> getType() {
-        return ModRecipes.ARETE_FLUTE_ASSEMBLY_TYPE.get();
+        return RecipeType.CRAFTING;
     }
 
     @Override
