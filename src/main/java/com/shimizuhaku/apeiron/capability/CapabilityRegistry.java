@@ -5,5 +5,5 @@ import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
 
 public class CapabilityRegistry {
-    public static final Capability<InstrumentData> INSTRUMENT_DATA = CapabilityManager.get(new CapabilityToken<>(){});
+    public static final Capability<InstrumentCapability> INSTRUMENT_DATA = CapabilityManager.get(new CapabilityToken<>(){});
 }

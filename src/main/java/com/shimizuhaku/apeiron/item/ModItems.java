@@ -23,6 +23,10 @@ public class ModItems {
     public static final RegistryObject<Item> APEIRON_CAMERA = ITEMS.register("apeiron_camera",
             () -> new ApeironCameraItem(new Item.Properties()));
 
+    // 低級破壊アレテーモジュール
+    public static final RegistryObject<Item> LOW_DESTRUCTION_ARETE = ITEMS.register("low_destruction_arete",
+            () -> new LowDestructionAreteItem(new Item.Properties().stacksTo(1)));
+
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);
     }

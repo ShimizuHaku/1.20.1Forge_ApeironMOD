@@ -16,5 +16,8 @@ public abstract class AreteItem extends Item {
 
     public abstract Rizomata elements();
 
+    // アレテーの一意識別子（楽器のNBTに記録する文字列）
+    public abstract String getAreteId();
+
     public enum Rizomata{PYR,HYDOR,AER,GE}
 }

@@ -5,6 +5,7 @@ import com.shimizuhaku.apeiron.block.ModBlocks;
 import com.shimizuhaku.apeiron.capability.InstrumentProvider;
 import com.shimizuhaku.apeiron.item.AreteItem;
 import com.shimizuhaku.apeiron.item.ModItems;
+import com.shimizuhaku.apeiron.item.WoodenFluteItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -63,6 +64,7 @@ public class Apeiron
         // 1. 各クラスのレジストリ登録を呼ぶ
         ModItems.register(modEventBus);
         ModBlocks.register(modEventBus);
+        com.shimizuhaku.apeiron.recipe.ModRecipes.register(modEventBus);
 
         CREATIVE_MODE_TABS.register(modEventBus);
 
@@ -113,8 +115,8 @@ public class Apeiron
 
     @SubscribeEvent
     public void onAttachCapabilities(AttachCapabilitiesEvent<ItemStack> event) {
-        // あなたの楽器アイテムのチェック
-        if (event.getObject().getItem() instanceof AreteItem) {
+        // 楽器アイテム（笛など）にCapabilityを付与する
+        if (event.getObject().getItem() instanceof WoodenFluteItem) {
             event.addCapability(new ResourceLocation("apeiron", "instrument_data"), new InstrumentProvider());
         }
     }

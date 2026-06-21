@@ -19,4 +19,9 @@ public class LowDestructionAreteItem extends DestructionAreteItem {
     public float getBaseDamage() {
         return 3.0F; // 低級の基本威力
     }
+
+    @Override
+    public String getAreteId() {
+        return "destruction_low";
+    }
 }

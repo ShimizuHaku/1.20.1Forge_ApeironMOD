@@ -9,8 +9,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class InstrumentProvider implements ICapabilitySerializable<CompoundTag> {
-    private final InstrumentData data = new InstrumentData();
-    private final LazyOptional<InstrumentData> lazyOptional = LazyOptional.of(() -> data);
+    private final InstrumentCapability data = new InstrumentCapability();
+    private final LazyOptional<InstrumentCapability> lazyOptional = LazyOptional.of(() -> data);
 
     @Override
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
@@ -19,13 +19,11 @@ public class InstrumentProvider implements ICapabilitySerializable<CompoundTag> 
 
     @Override
     public CompoundTag serializeNBT() {
-        CompoundTag tag = new CompoundTag();
-        data.saveNBT(tag);
-        return tag;
+        return data.serializeNBT();
     }
 
     @Override
     public void deserializeNBT(CompoundTag nbt) {
-        data.loadNBT(nbt);
+        data.deserializeNBT(nbt);
     }
 }
