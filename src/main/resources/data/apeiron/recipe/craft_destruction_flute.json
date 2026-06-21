@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "pattern": [
+    "M",
+    "F"
+  ],
+  "key": {
+    "M": { "item": "minecraft:amethyst_shard", "tag": "apeiron:low_destruction_module" },
+    "F": { "item": "minecraft:wooden_flute" }
+  },
+  "result": {
+    "id": "apeiron:wooden_flute",
+    "components": {
+      "minecraft:custom_data": {
+        "apeiron_weapon": 1,
+        "destruction_level": 1
+      },
+      "minecraft:item_name": "{\"text\":\"破壊の笛 (低級)\",\"color\":\"gray\"}"
+    }
+  }
+}
