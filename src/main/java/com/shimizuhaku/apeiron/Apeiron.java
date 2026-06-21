@@ -3,21 +3,14 @@ package com.shimizuhaku.apeiron;
 import com.mojang.logging.LogUtils;
 import com.shimizuhaku.apeiron.block.ModBlocks;
 import com.shimizuhaku.apeiron.capability.InstrumentProvider;
-import com.shimizuhaku.apeiron.item.AreteItem;
 import com.shimizuhaku.apeiron.item.ModItems;
 import com.shimizuhaku.apeiron.item.WoodenFluteItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.*;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.material.MapColor;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
@@ -26,12 +19,12 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import org.slf4j.Logger;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import com.shimizuhaku.apeiron.item.AreteRegistry;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(Apeiron.MOD_ID)
@@ -53,6 +46,7 @@ public class Apeiron
                         output.accept(ModItems.WOODEN_FLUTE.get());
                         output.accept(ModItems.PURE_FRUIT.get());
                         output.accept(ModItems.APEIRON_CAMERA.get());
+                        output.accept(ModItems.LOW_DESTRUCTION_ARETE.get());
                         output.accept(ModBlocks.TUNING_ALTAR_ITEM.get());// ここでアイテムを入れる
                     })
                     .build());
@@ -60,6 +54,8 @@ public class Apeiron
     public Apeiron(FMLJavaModLoadingContext context) {
 
         IEventBus modEventBus = context.getModEventBus();
+
+        modEventBus.addListener(this::commonSetup);
 
         // 1. 各クラスのレジストリ登録を呼ぶ
         ModItems.register(modEventBus);
@@ -119,5 +115,9 @@ public class Apeiron
         if (event.getObject().getItem() instanceof WoodenFluteItem) {
             event.addCapability(new ResourceLocation("apeiron", "instrument_data"), new InstrumentProvider());
         }
+    }
+
+    private void commonSetup(FMLCommonSetupEvent event) {
+        event.enqueueWork(AreteRegistry::build);
     }
 }

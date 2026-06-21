@@ -2,6 +2,7 @@ package com.shimizuhaku.apeiron.item;
 
 import com.shimizuhaku.apeiron.capability.CapabilityRegistry;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -10,6 +11,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -19,14 +22,43 @@ public class WoodenFluteItem extends Item {
         super(properties);
     }
 
-    // ここで右クリックした時の挙動（GUIを開くなど）を制御します
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
-        if (!level.isClientSide) {
-            // ここに「GUIを開く」処理を後で記述します
-            player.sendSystemMessage(net.minecraft.network.chat.Component.literal("笛が共鳴しようとしている..."));
+        ItemStack stack = player.getItemInHand(hand);
+
+        boolean hasArete = stack.getCapability(CapabilityRegistry.INSTRUMENT_DATA)
+                .map(cap -> cap.hasArete())
+                .orElse(false);
+
+        if (!hasArete) {
+            if (!level.isClientSide) {
+                player.sendSystemMessage(Component.literal("笛が共鳴しようとしている..."));
+            }
+            return super.use(level, player, hand);
         }
-        return super.use(level, player, hand);
+
+        if (!level.isClientSide) {
+            String areteId = stack.getCapability(CapabilityRegistry.INSTRUMENT_DATA)
+                    .map(cap -> cap.getAreteId()).orElse("none");
+
+            AreteRegistry.get(areteId).ifPresentOrElse(areteItem -> {
+                if (areteItem instanceof DestructionAreteItem destructionArete) {
+                    HitResult hit = player.pick(5.0D, 0.0F, false);
+                    if (hit.getType() == HitResult.Type.BLOCK) {
+                        BlockPos pos = ((BlockHitResult) hit).getBlockPos();
+                        boolean success = destructionArete.performDestruction(level, player, pos);
+                        if (!success) {
+                            player.displayClientMessage(Component.literal("§c[!] このブロックは破壊できません"), true);
+                        }
+                    } else {
+                        player.displayClientMessage(Component.literal("§c[!] 対象がありません"), true);
+                    }
+                }
+                // 他のアレテー種別（火攻撃系など）はここに分岐を追加していく想定
+            }, () -> player.displayClientMessage(Component.literal("§c[!] 不明なアレテーです: " + areteId), true));
+        }
+
+        return InteractionResultHolder.success(stack);
     }
 
     @Override
