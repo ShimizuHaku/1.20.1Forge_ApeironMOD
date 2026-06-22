@@ -88,9 +88,13 @@ public class AreteFluteAssemblyRecipe implements CraftingRecipe {
 
         if (areteItem != null) {
             final AreteItem finalArete = areteItem;
-            result.getCapability(CapabilityRegistry.INSTRUMENT_DATA).ifPresent(cap ->
-                    cap.attachArete(finalArete.getAreteId(), finalArete.getTier())
-            );
+            ItemStack finalFlute = flute;
+            result.getCapability(CapabilityRegistry.INSTRUMENT_DATA).ifPresent(cap -> {
+                cap.attachArete(finalArete.getAreteId(), finalArete.getTier());
+                if (finalFlute.getItem() instanceof WoodenFluteItem fluteItem) {
+                    cap.recalculateTabulaRasaSlots(fluteItem.getTabulaRasaSlotsPerArete());
+                }
+            });
         }
 
         return result;

@@ -61,6 +61,8 @@ public class Apeiron
         ModItems.register(modEventBus);
         ModBlocks.register(modEventBus);
         com.shimizuhaku.apeiron.recipe.ModRecipes.register(modEventBus);
+        com.shimizuhaku.apeiron.menu.ModMenuTypes.register(modEventBus);
+        com.shimizuhaku.apeiron.network.ModNetworking.register();
 
         CREATIVE_MODE_TABS.register(modEventBus);
 
@@ -106,6 +108,12 @@ public class Apeiron
             // Some client setup code
             LOGGER.info("HELLO FROM CLIENT SETUP");
             LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
+
+            event.enqueueWork(() ->
+                    net.minecraft.client.gui.screens.MenuScreens.register(
+                            com.shimizuhaku.apeiron.menu.ModMenuTypes.INSTRUMENT_MENU.get(),
+                            com.shimizuhaku.apeiron.menu.InstrumentScreen::new)
+            );
         }
     }
 
