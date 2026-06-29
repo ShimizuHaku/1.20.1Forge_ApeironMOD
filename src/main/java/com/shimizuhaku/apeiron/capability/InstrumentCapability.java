@@ -123,6 +123,46 @@ public class InstrumentCapability implements INBTSerializable<CompoundTag> {
         tabulaRasaSlots.set(index, stack);
     }
 
+    // 形相モジュール枠。サイズは楽器固有値で固定（増減なし）。空は "none" 文字列で表現する。
+    private List<String> eidosModuleSlots = new ArrayList<>();
+
+    public int getEidosModuleSlotCount() {
+        return eidosModuleSlots.size();
+    }
+
+    public String getEidosModule(int index) {
+        if (index < 0 || index >= eidosModuleSlots.size()) return "none";
+        return eidosModuleSlots.get(index);
+    }
+
+    /**
+     * 形相モジュール枠の数を初期化する。楽器固有値なので、通常は笛の生成時に一度だけ呼ぶ想定。
+     * 既存の枠数と同じなら何もしない。
+     */
+    public void initEidosModuleSlots(int slotCount) {
+        if (eidosModuleSlots.size() == slotCount) return;
+        List<String> resized = new ArrayList<>(slotCount);
+        for (int i = 0; i < slotCount; i++) {
+            resized.add(i < eidosModuleSlots.size() ? eidosModuleSlots.get(i) : "none");
+        }
+        this.eidosModuleSlots = resized;
+    }
+
+    /**
+     * 指定枠に形相モジュールを装着する。枠が空でなければ失敗する（先に取り外しが必要）。
+     */
+    public boolean setEidosModule(int index, String eidosModuleId) {
+        if (index < 0 || index >= eidosModuleSlots.size()) return false;
+        if (!"none".equals(eidosModuleSlots.get(index))) return false;
+        eidosModuleSlots.set(index, eidosModuleId);
+        return true;
+    }
+
+    public void clearEidosModule(int index) {
+        if (index < 0 || index >= eidosModuleSlots.size()) return;
+        eidosModuleSlots.set(index, "none");
+    }
+
     /**
      * 装着中のタブラ・ラサの中に、指定したブロックIDを記憶しているものが1つでもあるか。
      * 破壊魔法などの対象ブロック判定に使う。
@@ -155,6 +195,9 @@ public class InstrumentCapability implements INBTSerializable<CompoundTag> {
             tabulaList.add(stackTag);
         }
         tag.put("TabulaRasaSlots", tabulaList);
+        ListTag eidosList = new ListTag();
+        for (String s : eidosModuleSlots) eidosList.add(StringTag.valueOf(s));
+        tag.put("EidosModuleSlots", eidosList);
 
         return tag;
     }
@@ -172,5 +215,8 @@ public class InstrumentCapability implements INBTSerializable<CompoundTag> {
         for (int i = 0; i < tabulaList.size(); i++) {
             this.tabulaRasaSlots.add(ItemStack.of(tabulaList.getCompound(i)));
         }
+        ListTag eidosList = tag.getList("EidosModuleSlots", Tag.TAG_STRING);
+        this.eidosModuleSlots = new ArrayList<>(eidosList.size());
+        for (int i = 0; i < eidosList.size(); i++) this.eidosModuleSlots.add(eidosList.getString(i));
     }
 }

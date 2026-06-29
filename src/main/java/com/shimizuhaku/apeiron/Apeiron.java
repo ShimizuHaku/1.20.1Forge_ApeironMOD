@@ -98,6 +98,12 @@ public class Apeiron
         }
     }
 
+    @SubscribeEvent
+    public static void onRegisterGuiOverlays(net.minecraftforge.client.event.RegisterGuiOverlaysEvent event) {
+        event.registerAboveAll("instrument_hud",
+                new com.shimizuhaku.apeiron.client.InstrumentHudOverlay());
+    }
+
     // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
     @Mod.EventBusSubscriber(modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static class ClientModEvents
@@ -105,7 +111,6 @@ public class Apeiron
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event)
         {
-            // Some client setup code
             LOGGER.info("HELLO FROM CLIENT SETUP");
             LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
 
@@ -126,6 +131,9 @@ public class Apeiron
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {
-        event.enqueueWork(AreteRegistry::build);
+        event.enqueueWork(() -> {
+            AreteRegistry.build();
+            com.shimizuhaku.apeiron.item.EidosModuleRegistry.build();
+        });
     }
 }

@@ -93,6 +93,7 @@ public class AreteFluteAssemblyRecipe implements CraftingRecipe {
                 cap.attachArete(finalArete.getAreteId(), finalArete.getTier());
                 if (finalFlute.getItem() instanceof WoodenFluteItem fluteItem) {
                     cap.recalculateTabulaRasaSlots(fluteItem.getTabulaRasaSlotsPerArete());
+                    cap.initEidosModuleSlots(fluteItem.getEidosModuleSlotCount());
                 }
             });
         }

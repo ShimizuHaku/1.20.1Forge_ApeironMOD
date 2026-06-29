@@ -35,6 +35,51 @@ public class WoodenFluteItem extends Item {
         return 1;
     }
 
+    /**
+     * 形相モジュール用の固定スロット数（楽器固有値）。増減はしない。
+     */
+    public int getEidosModuleSlotCount() {
+        return 2; // 仮値：軽減・減少を1個ずつ装着できる想定
+    }
+
+    /**
+     * 楽器固有の補正値。アレテー固有値との掛け算に使う（消費量計算式の分子側）。
+     */
+    public float getInstrumentFactor() {
+        return 1.0F;
+    }
+
+    /**
+     * タブラ・ラサ耐久消費量を計算する。
+     * 消費量 = max( アレテー固有値 × 楽器固有値 / 軽減形相モジュール値 − 減少形相モジュール値 , 0 )
+     */
+    /**
+     * タブラ・ラサ耐久消費量を計算する。
+     * 消費量 = max( アレテー固有値 × 楽器固有値 / 軽減形相モジュール値 − 減少形相モジュール値 , 0 )
+     */
+    public static float calculateDurabilityCost(float areteValue, float instrumentFactor,
+                                                com.shimizuhaku.apeiron.capability.InstrumentCapability cap) {
+        float reduction = 1.0F; // 未装着時のデフォルト（除数なので1が中立値）
+        float decay = 0.0F;     // 未装着時のデフォルト（減算項なので0が中立値）
+
+        for (int i = 0; i < cap.getEidosModuleSlotCount(); i++) {
+            String moduleId = cap.getEidosModule(i);
+            if ("none".equals(moduleId)) continue;
+
+            var moduleOpt = EidosModuleRegistry.get(moduleId);
+            if (moduleOpt.isEmpty()) continue;
+
+            EidosModuleItem module = moduleOpt.get();
+            if (module instanceof ReductionEidosModuleItem reductionModule) {
+                reduction = Math.max(1.0F, reductionModule.getReductionValue());
+            } else if (module instanceof DecayEidosModuleItem decayModule) {
+                decay += decayModule.getDecayValue();
+            }
+        }
+
+        return Math.max(0f, areteValue * Math.max(0f, instrumentFactor) / reduction - decay);
+    }
+
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
