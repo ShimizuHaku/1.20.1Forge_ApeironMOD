@@ -1,17 +1,17 @@
 package com.shimizuhaku.apeiron.client;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.shimizuhaku.apeiron.capability.CapabilityRegistry;
 import com.shimizuhaku.apeiron.capability.InstrumentCapability;
 import com.shimizuhaku.apeiron.item.BaseTabulaRasaItem;
 import com.shimizuhaku.apeiron.item.WoodenFluteItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraftforge.client.gui.overlay.IGuiOverlay;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.client.gui.overlay.ForgeGui;
+import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 
 /**
  * 手持ちの魔法楽器について、装着中タブラ・ラサの耐久値ゲージをHUDに表示するオーバーレイ。
@@ -26,10 +26,12 @@ public class InstrumentHudOverlay implements IGuiOverlay {
     private static final int MARGIN_BOTTOM = 50; // ホットバーの上あたり
 
     @Override
-    public void render(net.minecraftforge.client.gui.overlay.ForgeGui gui, GuiGraphics guiGraphics,
+    public void render(ForgeGui gui, GuiGraphics guiGraphics,
                        float partialTick, int screenWidth, int screenHeight) {
-        Player player = Minecraft.getInstance().player;
+        Minecraft minecraft = Minecraft.getInstance();
+        Player player = minecraft.player;
         if (player == null) return;
+        if (minecraft.screen != null) return; // GUI表示中は非表示
 
         ItemStack instrument = resolveInstrument(player);
         if (instrument.isEmpty()) return;
@@ -43,6 +45,7 @@ public class InstrumentHudOverlay implements IGuiOverlay {
 
         int baseY = screenHeight - MARGIN_BOTTOM;
 
+        // タブラ・ラサスロットを下から上に向けてゲージを並べる
         for (int i = 0; i < slotCount; i++) {
             ItemStack tabula = cap.getTabulaRasa(i);
             int y = baseY - i * (GAUGE_HEIGHT + GAUGE_GAP);
@@ -50,7 +53,8 @@ public class InstrumentHudOverlay implements IGuiOverlay {
         }
 
         // 将来：楽器本体の耐久値ゲージをここに追加する
-        // 例: drawGauge(guiGraphics, MARGIN_LEFT, baseY - slotCount * (GAUGE_HEIGHT + GAUGE_GAP) - 4, instrumentDurabilityRatio);
+        // int instrumentGaugeY = baseY - slotCount * (GAUGE_HEIGHT + GAUGE_GAP) - 4;
+        // drawInstrumentGauge(guiGraphics, MARGIN_LEFT, instrumentGaugeY, instrument);
     }
 
     private ItemStack resolveInstrument(Player player) {
@@ -66,7 +70,7 @@ public class InstrumentHudOverlay implements IGuiOverlay {
         guiGraphics.fill(x, y, x + GAUGE_WIDTH, y + GAUGE_HEIGHT, 0xFF202020);
 
         if (tabula.isEmpty()) {
-            // 空スロットは薄い枠だけ表示
+            // 空スロットは暗いグレーで塗りつぶし
             guiGraphics.fill(x + 1, y + 1, x + GAUGE_WIDTH - 1, y + GAUGE_HEIGHT - 1, 0xFF404040);
             return;
         }
@@ -86,6 +90,6 @@ public class InstrumentHudOverlay implements IGuiOverlay {
     private int gaugeColor(float ratio) {
         // 緑→黄→赤のグラデーション（バニラのダメージバーと同系統の配色）
         float hue = Math.max(0f, ratio) / 3f;
-        return 0xFF000000 | net.minecraft.util.Mth.hsvToRgb(hue, 1.0F, 1.0F);
+        return 0xFF000000 | Mth.hsvToRgb(hue, 1.0F, 1.0F);
     }
 }
